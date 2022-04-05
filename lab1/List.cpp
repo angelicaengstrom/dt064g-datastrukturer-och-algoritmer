@@ -84,7 +84,7 @@ size_t List::size() const{
     return matrix.size();
 }
 
-std::string List::get_edge_name(const int& index) const{
+std::string List::get_node_name(const int& index) const{
     return list.first.at(index);
 }
 
@@ -102,7 +102,7 @@ std::vector<node_t> List::generate_dijkstras(const node_id_t &start) {
         handled_nodes[min_path.second.second].first = std::min(min_path.first, handled_nodes[min_path.second.second].first);
 
         if(!handled_nodes[min_path.second.second].second) {
-            std::string path_name = list.first[min_path.second.second];
+            std::string path_name = get_node_name(min_path.second.second);
             std::cout << path_name << "(" << handled_nodes[min_path.second.second].first
                       << ") is set\n";
 
@@ -112,8 +112,8 @@ std::vector<node_t> List::generate_dijkstras(const node_id_t &start) {
                     if (handled_nodes[x_node].first > edge && !handled_nodes[x_node].second) {
                         path_t path = std::make_pair(edge + min_path.first, std::make_pair(Visited::FALSE, x_node));
 
-                        std::string path_name = list.first[min_path.second.second];
-                        std::string neighbour_name = list.first[path.second.second];
+                        std::string path_name = get_node_name(min_path.second.second);
+                        std::string neighbour_name = get_node_name(path.second.second);
 
                         if(path_name != neighbour_name) {
                             std::cout << path_name << " -> " << neighbour_name << "(" << path.first << ")\n";

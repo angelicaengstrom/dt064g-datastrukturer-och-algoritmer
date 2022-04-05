@@ -51,19 +51,19 @@ int main(){
         std::cout << "Generate Dijkstras algorithm... The path from Nackstavägen Axvägen 1: \n";
         std::vector<node_t> nacksta_path = adjacent_list.generate_dijkstras(24);
         std::cout << "===========================" << std::endl;
-        std::cout << adjacent_list.get_edge_name(24) << " -> " << adjacent_list.get_edge_name(37) << " = " << nacksta_path[37].first << std::endl;
+        std::cout << adjacent_list.get_node_name(24) << " -> " << adjacent_list.get_node_name(37) << " = " << nacksta_path[37].first << std::endl;
         std::cin.get();
 
         std::cout << "\nThe path from L319: \n";
         std::vector<node_t> L319_path = adjacent_list.generate_dijkstras(46);
         std::cout << "===========================" << std::endl;
-        std::cout << adjacent_list.get_edge_name(46) << " -> " << adjacent_list.get_edge_name(47) << " = " << L319_path[47].first << std::endl;
+        std::cout << adjacent_list.get_node_name(46) << " -> " << adjacent_list.get_node_name(47) << " = " << L319_path[47].first << std::endl;
         std::cin.get();
 
         std::cout << "\nThe path from University: \n";
         std::vector<node_t> uni_path = adjacent_list.generate_dijkstras(20);
         std::cout << "===========================" << std::endl;
-        std::cout << adjacent_list.get_edge_name(20) << " -> " << adjacent_list.get_edge_name(19) << " = " << uni_path[19].first << std::endl;
+        std::cout << adjacent_list.get_node_name(20) << " -> " << adjacent_list.get_node_name(19) << " = " << uni_path[19].first << std::endl;
     }
     return 0;
 }

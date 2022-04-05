@@ -34,7 +34,7 @@ public:
     std::vector<node_t> generate_dijkstras(const node_id_t& start);
     size_t size() const;
     adjacency_list_t get() const;
-    std::string get_edge_name(const int& index) const;
+    std::string get_node_name(const int& index) const;
 private:
     adjacency_list_t list;
     adjacency_matrix_t matrix;
