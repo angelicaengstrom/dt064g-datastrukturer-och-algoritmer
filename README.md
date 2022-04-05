@@ -1,3 +1,3 @@
 # DT064G-datastrukturer-och-algoritmer
 
-Kurs från årskurs 2 i Data
+Labbar från kursen Datastrukturer och Algoritmer från årskurs 2
