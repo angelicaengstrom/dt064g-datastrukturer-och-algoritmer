@@ -4,133 +4,98 @@
 
 #include "List.h"
 
-adjacency_matrix_t List::create_matrix() {
-    adjacency_matrix_t matrix(list.first.size(), std::vector<weight_t>(list.first.size()));
-    for(node_id_t y_pos = 0; y_pos < list.first.size(); y_pos++){
-        matrix[y_pos].assign(list.first.size(), inf_t::max());
-        for(node_id_t list_pos = 0; list_pos < list.second.size(); list_pos++){
-            const node_id_t n1 = list.second[list_pos].n1;
-            if(n1 == y_pos){
-                if(matrix[y_pos][y_pos] == inf_t::max()) {
-                    matrix[y_pos][y_pos] = Weight::SELF;
-                }
-                const node_id_t n2 = list.second[list_pos].n2;
-                const weight_t weight = list.second[list_pos].weight;
-                matrix[y_pos][n2] = weight;
+void List::create_matrix() {
+    for(node_id_t y_pos = 0; y_pos < size(); y_pos++){
+        matrix[y_pos].assign(size(), inf_t::max());
+        matrix[y_pos][y_pos] = Weight::SELF;
+        for(const auto& edge : list.second){
+            if(edge.n1 == y_pos){
+                matrix[edge.n1][edge.n2] = edge.weight;
             }
         }
     }
-    return matrix;
 }
 
 bool List::generate_dfs(const node_id_t &start) {
-    std::vector<node_id_t> visited(size());
+    std::vector<bool> visited(size());
     visited.assign(size(), Visited::FALSE);
 
-    node_id_t curr_pos = start;
+    node_id_t n1 = start;
 
     std::stack<node_id_t> neighbours;
-    neighbours.push(curr_pos);
+    neighbours.push(n1);
 
     while(!neighbours.empty()) {
-        curr_pos = neighbours.top();
-        visited[curr_pos] = Visited::TRUE;
+        n1 = neighbours.top();
+        visited[n1] = Visited::TRUE;
         neighbours.pop();
 
-        for (node_id_t x_pos = 0; x_pos < size(); x_pos++) {
-            weight_t edge = matrix[curr_pos][x_pos];
-            if (edge != inf_t::max() && edge != Weight::SELF && visited[x_pos] == Visited::FALSE){
-                neighbours.push(x_pos);
+        for (node_id_t n2 = 0; n2 < size(); n2++) {
+            weight_t weight = matrix[n1][n2];
+            if (weight != inf_t::max() && visited[n2] == Visited::FALSE){
+                neighbours.push(n2);
             }
         }
     }
-    return is_connected(visited);
-}
-
-bool List::is_connected(const std::vector<node_id_t> &visited_nodes) {
-    for(node_id_t i = 0; i < visited_nodes.size(); i++) {
-        if(visited_nodes[i] == Visited::FALSE){
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(visited.begin(), visited.end(), [](const auto& node){ return node; });
 }
 
 bool List::generate_bfs(const node_id_t &start) {
-    std::vector<node_id_t> visited(size());
+    std::vector<bool> visited(size());
     visited.assign(size(), Visited::FALSE);
 
-    node_id_t curr_pos = start;
+    node_id_t n1 = start;
 
     std::list<node_id_t> neighbours;
-    neighbours.push_back(curr_pos);
+    neighbours.push_back(n1);
 
     while(!neighbours.empty()) {
-        curr_pos = neighbours.front();
-        visited[curr_pos] = Visited::TRUE;
+        n1 = neighbours.front();
+        visited[n1] = Visited::TRUE;
         neighbours.pop_front();
 
-        for (node_id_t x_pos = 0; x_pos < size(); x_pos++) {
-            weight_t edge = matrix[curr_pos][x_pos];
-            if (edge != inf_t::max() && edge != Weight::SELF && visited[x_pos] == Visited::FALSE){
-                neighbours.push_back(x_pos);
+        for (node_id_t n2 = 0; n2 < size(); n2++) {
+            weight_t weight = matrix[n1][n2];
+            if (weight != inf_t::max() && visited[n2] == Visited::FALSE){
+                neighbours.push_back(n2);
             }
         }
     }
-    return is_connected(visited);
+    return std::all_of(visited.begin(), visited.end(), [](const auto& node){ return node; });
 }
 
-size_t List::size() const{
-    return matrix.size();
-}
-
-std::string List::get_node_name(const int& index) const{
-    return list.first.at(index);
-}
-
-std::vector<node_t> List::generate_dijkstras(const node_id_t &start) {
-    std::vector<node_t> handled_nodes(size());
+std::vector<handled_t> List::generate_dijkstras(const node_id_t &start) {
+    std::vector<handled_t> handled_nodes(size());
     handled_nodes.assign(size(), std::make_pair(inf_t::max(), Visited::FALSE));
 
     std::priority_queue<path_t, std::vector<path_t>, std::greater<>> neighbour_nodes;
-    neighbour_nodes.push(std::make_pair(Weight::SELF, std::make_pair(Visited::TRUE, start)));
+    neighbour_nodes.push(std::make_pair(Weight::SELF, start));
 
     while(!neighbour_nodes.empty()){
         path_t min_path = neighbour_nodes.top();
         neighbour_nodes.pop();
 
-        handled_nodes[min_path.second.second].first = std::min(min_path.first, handled_nodes[min_path.second.second].first);
+        handled_nodes[min_path.second].first = std::min(min_path.first, handled_nodes[min_path.second].first);
 
-        if(!handled_nodes[min_path.second.second].second) {
-            std::string path_name = get_node_name(min_path.second.second);
-            std::cout << path_name << "(" << handled_nodes[min_path.second.second].first
+        if(!handled_nodes[min_path.second].second) {
+            std::string handled_name = get_node_name(min_path.second);
+            std::cout << handled_name << "(" << handled_nodes[min_path.second].first
                       << ") is set\n";
+            handled_nodes[min_path.second].second = Visited::TRUE;
 
             for (node_id_t x_node = 0; x_node < size(); x_node++) {
-                weight_t edge = matrix[min_path.second.second][x_node];
-                if (edge != inf_t::max()) {
-                    if (handled_nodes[x_node].first > edge && !handled_nodes[x_node].second) {
-                        path_t path = std::make_pair(edge + min_path.first, std::make_pair(Visited::FALSE, x_node));
+                weight_t weight = matrix[min_path.second][x_node];
+                if (handled_nodes[x_node].first > weight && !handled_nodes[x_node].second) {
+                    path_t neighbour = std::make_pair(weight + min_path.first,  x_node);
+                    std::string neighbour_name = get_node_name(neighbour.second);
 
-                        std::string path_name = get_node_name(min_path.second.second);
-                        std::string neighbour_name = get_node_name(path.second.second);
-
-                        if(path_name != neighbour_name) {
-                            std::cout << path_name << " -> " << neighbour_name << "(" << path.first << ")\n";
-                            neighbour_nodes.push(path);
-                        }
-                    }
+                    std::cout << handled_name << " -> " << neighbour_name << "(" << neighbour.first << ")\n";
+                    neighbour_nodes.push(neighbour);
                 }
             }
         }
-        handled_nodes[min_path.second.second].second = Visited::TRUE;
     }
-
     return handled_nodes;
-}
-
-adjacency_list_t List::get() const {
-    return this->list;
 }
 
 
